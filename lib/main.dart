@@ -1,4 +1,7 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
+import 'package:rick_and_morty/ui/pages/home_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -10,59 +13,36 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo rick',
+      title: 'Rick and Morty',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page rick'),
+          brightness: Brightness.light,
+          primaryColor: Colors.black,
+          fontFamily: "Georgia",
+          textTheme: const TextTheme(
+              headline1: TextStyle(
+                  fontSize: 50,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white),
+              headline2: TextStyle(
+                  fontSize: 30,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white),
+              headline3: TextStyle(fontSize: 24.0, color: Colors.white),
+              bodyText2: TextStyle(
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.white),
+              bodyText1: TextStyle(
+                  fontSize: 12.0,
+                  fontWeight: FontWeight.w200,
+                  color: Colors.white),
+              caption: TextStyle(
+                  fontSize: 11.0,
+                  fontWeight: FontWeight.w100,
+                  color: Colors.grey))),
+      home: HomePage(title: 'Rick adn Morty'),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ),
-    );
-  }
-}
-//https://www.youtube.com/watch?v=o3XmLevQNOk&ab_channel=KonstantinKokorin
+// next https://www.youtube.com/watch?v=b3B1wvEcEZ0&ab_channel=KonstantinKokorin

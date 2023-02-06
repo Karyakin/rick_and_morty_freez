@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:rick_and_morty/bloc/character_bloc.dart';
 import 'package:rick_and_morty/data/models/character.dart';
 
@@ -17,6 +18,9 @@ class _SearchPageState extends State<SearchPage> {
   List<Results> _currentResults = [];
   int _currentPsge = 1;
   String _currentSearchStr = '';
+
+  final RefreshController refreshController = RefreshController();
+  bool _isPagination = false;
 
   @override
   void initState() {
@@ -63,21 +67,38 @@ class _SearchPageState extends State<SearchPage> {
         Expanded(
           child: state.when(
               loading: () {
-                return Center(
-                  child: Row(
+                if (!_isPagination) {
+                  return Center(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: const [
                         CircularProgressIndicator(strokeWidth: 2),
                         SizedBox(
                           width: 10,
                         ),
-                        Text('loading...')
-                      ]),
-                );
+                        Text('loading...'),
+                      ],
+                    ),
+                  );
+                } else {
+                  return _customListView(_currentResults);
+                }
               },
               loaded: (characterLoaded) {
                 _carrentCharacter = characterLoaded;
-                _currentResults = _carrentCharacter.results;
+                if (_isPagination) {
+                  // final List<Results> test = _currentResults;
+
+                  // test.addAll(_carrentCharacter.results);
+
+                  //_currentResults.addAll(_carrentCharacter.results);
+                  _currentResults = _carrentCharacter.results;
+                  refreshController.loadComplete();
+                  _isPagination = false;
+                } else {
+                  _currentResults = _carrentCharacter.results;
+                }
+
                 return _currentResults.isNotEmpty
                     ? _customListView(
                         _currentResults) //Text('$_currentResults')
@@ -90,17 +111,33 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Widget _customListView(List<Results> currentResult) {
-    return ListView.separated(
-      itemCount: currentResult.length,
-      separatorBuilder: (_, index) => const SizedBox(height: 5),
-      shrinkWrap: true,
-      itemBuilder: (context, index) {
-        final result = currentResult[index];
-        return Padding(
-            padding:
-                const EdgeInsets.only(right: 16, left: 16, bottom: 3, top: 3),
-            child: CustomListTitle(results: result));
+    return SmartRefresher(
+      controller: refreshController,
+      enablePullUp:
+          true, // когда дойдем до конца списка чтобы появлялся идекатор загрузки
+      enablePullDown: false, // когда дергаем список вних
+      onLoading: () {
+        _isPagination = true;
+        _currentPsge++;
+        if (_currentPsge <= _carrentCharacter.info.pages) {
+          context.read<CharacterBloc>().add(CharacterEvent.fetch(
+              name: _currentSearchStr, page: _currentPsge));
+        } else {
+          refreshController.loadNoData();
+        }
       },
+      child: ListView.separated(
+        itemCount: currentResult.length,
+        separatorBuilder: (_, index) => const SizedBox(height: 5),
+        shrinkWrap: true,
+        itemBuilder: (context, index) {
+          final result = currentResult[index];
+          return Padding(
+              padding:
+                  const EdgeInsets.only(right: 16, left: 16, bottom: 3, top: 3),
+              child: CustomListTitle(results: result));
+        },
+      ),
     );
   }
 }
